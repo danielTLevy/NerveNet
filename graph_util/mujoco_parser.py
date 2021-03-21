@@ -14,7 +14,7 @@
 # -----------------------------------------------------------------------------
 
 
-import init_path
+import graph_util.init_path as init_path
 import os
 import numpy as np
 from bs4 import BeautifulSoup as bs

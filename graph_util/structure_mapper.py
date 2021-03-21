@@ -5,9 +5,9 @@
 # -----------------------------------------------------------------------------
 
 
-import init_path
+import graph_util.init_path as init_path
 from util import logger
-import mujoco_parser
+import graph_util.mujoco_parser as mujoco_parser
 import numpy as np
 
 

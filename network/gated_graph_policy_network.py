@@ -5,10 +5,10 @@
 #       27th, Aug: MAJOR UPDATE: change the node input totally.
 #       NOTE: Now the input is in node order
 # ------------------------------------------------------------------------------
-import init_path
+import init_path as init_path
 import tensorflow as tf
 import numpy as np
-from policy_network import policy_network
+from network.policy_network import policy_network
 from util import logger
 from graph_util import mujoco_parser
 from graph_util import gnn_util
@@ -298,7 +298,7 @@ class GGNN(policy_network):
                 )
 
                 if np.any([node_size == 0 for _, node_size
-                           in self._node_info['ob_size_dict'].iteritems()]):
+                           in self._node_info['ob_size_dict'].items()]):
 
                     out = self._npr.randn(
                         embedding_vec_size, self._input_feat_dim

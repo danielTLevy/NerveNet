@@ -3,7 +3,7 @@
 #       in this model, we save the weights by our own function
 #       written by Tingwu Wang
 # -----------------------------------------------------------------------------
-import init_path
+import util.init_path as init_path
 import numpy as np
 from util import logger
 import os
