@@ -57,7 +57,7 @@ def load_tf_model(sess, model_path, tf_var_list=[], ignore_prefix='INVALID',
     logger.info('\tLOADING tensorflow variables')
 
     # load the parameters
-    output_save_list = np.load(model_path, encoding='latin1').item()
+    output_save_list = np.load(model_path, encoding='latin1', allow_pickle=True).item()
     tf_name_list = [var.name for var in tf_var_list]
 
     # get the weights one by one
@@ -144,7 +144,7 @@ def load_numpy_model(model_path, numpy_var_list={}):
     is_file_valid(model_path)
     logger.info('LOADING numpy variables')
 
-    output_save_list = np.load(model_path, encoding='latin1').item()
+    output_save_list = np.load(model_path, encoding='latin1', allow_pickle=True).item()
     numpy_name_list = [key for key, val in numpy_var_list.items()]
 
     # get the weights one by one
@@ -211,7 +211,7 @@ def model_load_from_list(sess, model_path, tf_var_list=[], numpy_var_list={},
         logger.warning('[checkpoint] adding the ".npy" to the path name')
     logger.info('[checkpoint] loading checkpoint from {}'.format(model_path))
 
-    output_save_list = np.load(model_path, encoding='latin1').item()
+    output_save_list = np.load(model_path, encoding='latin1', allow_pickle=True).item()
     tf_name_list = [var.name for var in tf_var_list]
     numpy_name_list = [key for key, val in numpy_var_list.items()]
 

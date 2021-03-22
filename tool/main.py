@@ -19,7 +19,7 @@ if __name__ == '__main__':
     logger.info('New environments available : {}'.format(
         register.get_name_list()))
     args = get_config()
-    args.max_pathlength = gym.spec(args.task).timestep_limit
+    args.max_pathlength = gym.spec(args.task).max_episode_steps
     learner_env = gym.make(args.task)
 
     if args.write_log:

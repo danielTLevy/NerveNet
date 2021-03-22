@@ -97,7 +97,7 @@ def parse_mujoco_graph(task_name,
         xml_path = os.path.join(XML_ASSERT_DIR, XML_DICT[task_name])
 
     infile = open(xml_path, 'r')
-    xml_soup = bs(infile.read(), 'xml')
+    xml_soup = bs(infile.read(), 'lxml')
     if 'nG' in gnn_node_option:
         # no geom node allowed, this order is very important, 'body' must be
         # after the 'joint'
@@ -825,7 +825,7 @@ def _get_para_list(xml_soup, node_type_allowed):
     default_dict = PARAMETERS_DEFAULT_DICT
     default_soup = xml_soup.find('default')
     if default_soup is not None:
-        for node_type, para_type_list in para_list.iteritems():
+        for node_type, para_type_list in para_list.items():
             # find the default str if possible
             type_soup = default_soup.find(node_type)
             if type_soup is not None:
