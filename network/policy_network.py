@@ -69,7 +69,7 @@ class policy_network(object):
         self.args = args
 
         if build_network_now:
-            with tf.get_default_graph().as_default():
+            with tf.compat.v1.get_default_graph().as_default():
                 tf.compat.v1.set_random_seed(args.seed)
                 self._build_model()
 

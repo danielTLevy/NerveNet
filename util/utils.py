@@ -141,7 +141,7 @@ class SetFromFlat(object):
     assigns = []
     for (shape, v) in zip(shapes, var_list):
       size = np.prod(shape)
-      assigns.append(tf.assign(v, tf.reshape(theta[start:start + size], shape)))
+      assigns.append(tf.compat.v1.assign(v, tf.reshape(theta[start:start + size], shape)))
       start += size
     self.op = tf.group(*assigns)
 
@@ -189,11 +189,11 @@ class SetPolicyWeights(object):
     self.placeholders = {}
     self.assigns = []
 
-    with tf.get_default_graph().as_default():
+    with tf.compat.v1.get_default_graph().as_default():
       for var in self.policy_vars:
         self.placeholders[var.name] = \
             tf.compat.v1.placeholder(tf.float32, var.get_shape())
-        self.assigns.append(tf.assign(var, self.placeholders[var.name]))
+        self.assigns.append(tf.compat.v1.assign(var, self.placeholders[var.name]))
 
   def __call__(self, weights):
     feed_dict = {}

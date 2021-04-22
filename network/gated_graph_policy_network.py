@@ -101,7 +101,7 @@ class GGNN(policy_network):
         '''
             @brief: everything about the network goes here
         '''
-        with tf.get_default_graph().as_default():
+        with tf.compat.v1.get_default_graph().as_default():
             tf.compat.v1.set_random_seed(self._seed)
 
             # record the iteration count
