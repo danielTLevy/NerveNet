@@ -54,11 +54,11 @@ class base_agent(multiprocessing.Process):
 
     def build_session(self):
         if self.args.use_gpu:
-            config = tf.ConfigProto(device_count={'GPU': 1})
+            config = tf.compat.v1.ConfigProto(device_count={'GPU': 1})
         else:
-            config = tf.ConfigProto(device_count={'GPU': 0})
+            config = tf.compat.v1.ConfigProto(device_count={'GPU': 0})
         config.gpu_options.allow_growth = True  # don't take full gpu memory
-        self.session = tf.Session(config=config)
+        self.session = tf.compat.v1.Session(config=config)
 
     def fetch_policy_info(self):
         assert self.policy_network is not None, \
@@ -235,26 +235,26 @@ class base_agent(multiprocessing.Process):
             @brief: The preprocess that is shared by trpo, ppo and vpg updates
         '''
         # the input placeholders for the input
-        self.action_placeholder = tf.placeholder(
+        self.action_placeholder = tf.compat.v1.placeholder(
             tf.float32, [None, self.action_size],
             name='action_sampled_in_rollout'
         )
-        self.advantage_placeholder = tf.placeholder(
+        self.advantage_placeholder = tf.compat.v1.placeholder(
             tf.float32, [None], name='advantage_value'
         )
-        self.oldaction_dist_mu_placeholder = tf.placeholder(
+        self.oldaction_dist_mu_placeholder = tf.compat.v1.placeholder(
             tf.float32, [None, self.action_size], name='old_act_dist_mu'
         )
-        self.oldaction_dist_logstd_placeholder = tf.placeholder(
+        self.oldaction_dist_logstd_placeholder = tf.compat.v1.placeholder(
             tf.float32, [None, self.action_size], name='old_act_dist_logstd'
         )
-        self.batch_size_float_placeholder = tf.placeholder(
+        self.batch_size_float_placeholder = tf.compat.v1.placeholder(
             tf.float32, [], name='batch_size_float'
         )
 
         # the adaptive kl penalty
         if self.args.use_kl_penalty:
-            self.kl_lambda_placeholder = tf.placeholder(tf.float32, [],
+            self.kl_lambda_placeholder = tf.compat.v1.placeholder(tf.float32, [],
                                                         name='kl_lambda')
 
         # what are the probabilities of taking self.action, given new and old

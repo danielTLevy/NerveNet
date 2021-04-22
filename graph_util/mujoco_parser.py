@@ -95,9 +95,8 @@ def parse_mujoco_graph(task_name,
     '''
     if xml_path is None:  # the xml file is in environments/assets/
         xml_path = os.path.join(XML_ASSERT_DIR, XML_DICT[task_name])
-
     infile = open(xml_path, 'r')
-    xml_soup = bs(infile.read(), 'lxml')
+    xml_soup = bs(infile.read(), 'xml')
     if 'nG' in gnn_node_option:
         # no geom node allowed, this order is very important, 'body' must be
         # after the 'joint'

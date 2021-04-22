@@ -3,7 +3,7 @@
 # -----------------------------------------------------------------------------
 
 import gym
-import tool.init_path as init_path
+import init_path
 from agent import optimization_agent
 from agent import rollout_master_agent
 from config.config import get_config
@@ -12,6 +12,8 @@ from util import logger
 import multiprocessing
 import time
 from environments import register
+import pdb
+
 init_path.bypass_frost_warning()
 
 if __name__ == '__main__':
@@ -38,7 +40,6 @@ if __name__ == '__main__':
         learner_results
     )
     learner_agent.start()
-
     # the rollouts agents
     rollout_agent = rollout_master_agent.parallel_rollout_master_agent(
         args,

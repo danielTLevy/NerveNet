@@ -126,7 +126,7 @@ class rollout_agent(base_agent):
         self.build_policy_network()
         self.fetch_policy_info()
 
-        self.session.run(tf.global_variables_initializer())
+        self.session.run(tf.compat.v1.global_variables_initializer())
 
         self.set_policy = utils.SetPolicyWeights(self.session,
                                                  self.policy_var_list)

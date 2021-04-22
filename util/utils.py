@@ -25,7 +25,7 @@ def gauss_selfKL_firstfixed(mu, logstd):
 def gauss_log_prob(mu, logstd, x):
   var = tf.exp(2 * logstd)
   gp = -tf.square(x - mu) / (2 * var) - \
-      .5 * tf.log(tf.constant(2 * np.pi)) - logstd
+      .5 * tf.math.log(tf.constant(2 * np.pi)) - logstd
   return tf.reduce_sum(gp, [1])
 
 
@@ -136,7 +136,7 @@ class SetFromFlat(object):
     assigns = []
     shapes = map(var_shape, var_list)
     total_size = sum(np.prod(shape) for shape in shapes)
-    self.theta = theta = tf.placeholder(tf.float32, [total_size])
+    self.theta = theta = tf.compat.v1.placeholder(tf.float32, [total_size])
     start = 0
     assigns = []
     for (shape, v) in zip(shapes, var_list):
@@ -192,7 +192,7 @@ class SetPolicyWeights(object):
     with tf.get_default_graph().as_default():
       for var in self.policy_vars:
         self.placeholders[var.name] = \
-            tf.placeholder(tf.float32, var.get_shape())
+            tf.compat.v1.placeholder(tf.float32, var.get_shape())
         self.assigns.append(tf.assign(var, self.placeholders[var.name]))
 
   def __call__(self, weights):
@@ -214,11 +214,11 @@ def xavier_initializer(self, shape):
 
 def fully_connected(input_layer, input_size, output_size, weight_init,
                     bias_init, scope, trainable):
-  with tf.variable_scope(scope):
-    w = tf.get_variable(
+  with tf.compat.v1.variable_scope(scope):
+    w = tf.compat.v1.get_variable(
         "w", [input_size, output_size],
         initializer=weight_init,
         trainable=trainable)
-    b = tf.get_variable(
+    b = tf.compat.v1.get_variable(
         "b", [output_size], initializer=bias_init, trainable=trainable)
   return tf.matmul(input_layer, w) + b

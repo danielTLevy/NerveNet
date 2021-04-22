@@ -38,7 +38,7 @@ class summary_handler(object):
             os.makedirs(self.path)
         self.path = os.path.join(self.path, summary_name)
 
-        self.train_writer = tf.summary.FileWriter(self.path, self.sess.graph)
+        self.train_writer = tf.compat.v1.summary.FileWriter(self.path, self.sess.graph)
 
         logger.info(
             'summary write initialized, writing to {}'.format(self.path))

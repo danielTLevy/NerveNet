@@ -6,9 +6,16 @@
 # -----------------------------------------------------------------------------
 
 from gym.envs.registration import register
+from gym.envs import registry
 import num2words
 import environments.asset_generator as asset_generator
 import numpy as np
+
+
+def safe_register(id, **kwargs):
+    if id in registry.env_specs:
+        del registry.env_specs[id]
+    register(id, **kwargs)
 
 MAX_EPISODE_STEPS_DICT = {
     'Centipede': 1000,
@@ -60,7 +67,7 @@ for env_title, env in ROBUSTNESS_TASK_DICT.items():
         # WalkersHopperone-v1, WalkersHopperoneEnv
         entry_point = file_name + i_env.replace('-v1', 'Env')
 
-        register(
+        safe_register(
             id=i_env,
             entry_point=entry_point,
             max_episode_steps=1000,
@@ -81,7 +88,7 @@ for env in asset_generator.TASK_DICT:
         registered_name = registered_name.replace(' ', '')
         entry_point = file_name + registered_name + 'Env'
 
-        register(
+        safe_register(
             id=(registered_name + '-v1'),
             entry_point=entry_point,
             max_episode_steps=MAX_EPISODE_STEPS_DICT[env],
@@ -91,7 +98,7 @@ for env in asset_generator.TASK_DICT:
         name_list.append(registered_name + '-v1')
 
 # register AntS-v1
-register(
+safe_register(
     id='AntS-v1',
     entry_point='environments.transfer_env.antS:AntEnv',
     max_episode_steps=1000,
@@ -99,37 +106,37 @@ register(
 )
 
 # register the walkers for multi-task learning
-register(
+safe_register(
     id='WalkersHopper-v1',
     entry_point='environments.multitask_env.walkers:WalkersHopperEnv',
     max_episode_steps=1000,
     reward_threshold=3800.0,
 )
-register(
+safe_register(
     id='WalkersHalfhumanoid-v1',
     entry_point='environments.multitask_env.walkers:WalkersHalfhumanoidEnv',
     max_episode_steps=1000,
     reward_threshold=3800.0,
 )
-register(
+safe_register(
     id='WalkersHalfcheetah-v1',
     entry_point='environments.multitask_env.walkers:WalkersHalfcheetahEnv',
     max_episode_steps=1000,
     reward_threshold=3800.0,
 )
-register(
+safe_register(
     id='WalkersFullcheetah-v1',
     entry_point='environments.multitask_env.walkers:WalkersFullcheetahEnv',
     max_episode_steps=1000,
     reward_threshold=3800.0,
 )
-register(
+safe_register(
     id='WalkersOstrich-v1',
     entry_point='environments.multitask_env.walkers:WalkersOstrichEnv',
     max_episode_steps=1000,
     reward_threshold=3800.0,
 )
-register(
+safe_register(
     id='WalkersKangaroo-v1',
     entry_point='environments.multitask_env.walkers:WalkersKangarooEnv',
     max_episode_steps=1000,

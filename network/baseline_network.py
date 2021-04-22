@@ -53,7 +53,7 @@ class tf_baseline_network(policy_network):
         self._vpred = tf.reshape(self._action_mu_output, [-1])
 
         self._target_returns = \
-            tf.placeholder(tf.float32, shape=[None], name="target_returns")
+            tf.compat.v1.placeholder(tf.float32, shape=[None], name="target_returns")
 
     def _build_loss(self):
         '''

@@ -98,18 +98,21 @@ class optimization_agent(base_agent):
         # load the model if needed
         if self.args.ckpt_name is not None:
             self.restore_all()
-
+        logger.info("A")
         # the main training process
         while True:
             next_task = self.task_q.get()
+            logger.info("B")
 
             # Kill the learner
             if next_task is None or next_task == parallel_util.END_SIGNAL:
+                logger.info("C")
                 self.task_q.task_done()
                 break
 
             # Get the policy network weights
             elif next_task == parallel_util.START_SIGNAL:
+                logger.info("D")
                 # just get the params of the network, no learning process
                 self.task_q.task_done()
                 self.result_q.put(self.get_policy())
@@ -117,6 +120,7 @@ class optimization_agent(base_agent):
             # Updating the network
             else:
                 if self.args.test:
+                    logger.info("E")
                     paths = next_task
 
                     paths.pop()
@@ -144,6 +148,7 @@ class optimization_agent(base_agent):
 
                 # the actual training step
                 else:
+                    logger.info("F")
                     paths = next_task
                     stats = self.update_parameters(paths)
                     self.task_q.task_done()
@@ -182,7 +187,7 @@ class optimization_agent(base_agent):
         self.update_parameters = self.update_ppo_parameters
 
         # init the network parameters (xavier initializer)
-        self.session.run(tf.global_variables_initializer())
+        self.session.run(tf.compat.v1.global_variables_initializer())
 
         # the set weight policy ops
         self.get_policy = utils.GetPolicyWeights(self.session,
@@ -271,19 +276,19 @@ class optimization_agent(base_agent):
 
         # step 4: weight decay
         self.weight_decay_loss = 0.0
-        for var in tf.trainable_variables():
+        for var in tf.compat.v1.trainable_variables():
             self.weight_decay_loss += tf.nn.l2_loss(var)
         if self.args.use_weight_decay:
             self.loss += self.weight_decay_loss * self.args.weight_decay_coeff
 
         # step 5: build the optimizer
-        self.lr_placeholder = tf.placeholder(tf.float32, [],
+        self.lr_placeholder = tf.compat.v1.placeholder(tf.float32, [],
                                              name='learning_rate')
         self.current_lr = self.args.lr
         if self.args.use_gnn_as_policy:
             # we need to clip the gradient for the ggnn
-            self.optimizer = tf.train.AdamOptimizer(self.lr_placeholder)
-            self.tvars = tf.trainable_variables()
+            self.optimizer = tf.compat.v1.train.AdamOptimizer(self.lr_placeholder)
+            self.tvars = tf.compat.v1.trainable_variables()
             self.grads = tf.gradients(self.loss, self.tvars)
             self.clipped_grads, _ = tf.clip_by_global_norm(
                 self.grads,
@@ -295,19 +300,19 @@ class optimization_agent(base_agent):
                 zip(self.clipped_grads, self.tvars)
             )
         else:
-            self.update_op = tf.train.AdamOptimizer(
+            self.update_op = tf.compat.v1.train.AdamOptimizer(
                 learning_rate=self.lr_placeholder, epsilon=1e-5
             ).minimize(self.loss)
 
-            self.tvars = tf.trainable_variables()
+            self.tvars = tf.compat.v1.trainable_variables()
             self.grads = tf.gradients(self.loss, self.tvars)
 
         if self.args.shared_network:
-            self.update_vf_op = tf.train.AdamOptimizer(
+            self.update_vf_op = tf.compat.v1.train.AdamOptimizer(
                 learning_rate=self.lr_placeholder, epsilon=1e-5
             ).minimize(self.vf_loss)
         else:
-            self.update_vf_op = tf.train.AdamOptimizer(
+            self.update_vf_op = tf.compat.v1.train.AdamOptimizer(
                 learning_rate=self.args.value_lr, epsilon=1e-5
             ).minimize(self.vf_loss)
 
@@ -472,14 +477,14 @@ class optimization_agent(base_agent):
 
     def record_summary_and_ckpt(self, paths, stats, ob_normalizer_info):
         # logger the information and write summary
-        for k, v in stats.iteritems():
+        for k, v in stats.items():
             logger.info(k + ": " + " " * (40 - len(k)) + str(v))
 
         current_iteration = self.get_iteration_count()
 
         if current_iteration % self.args.min_ckpt_iteration_diff == 0:
             logger.info('------------- Printing hyper-parameters -----------')
-            for key, val in self.args.__dict__.iteritems():
+            for key, val in self.args.__dict__.items():
                 logger.info('{}: {}'.format(key, val))
             logger.info('experiment name: '.format(self.get_experiment_name()))
 
