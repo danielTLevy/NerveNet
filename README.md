@@ -6,7 +6,8 @@ The repo is written in Python 2.7. You might need to modify the code repo for co
 
 ## 1. tensorflow >= 1.0.1
 ```bash
-pip install tensorflow-gpu
+pip install tensorflow==1.15.0
+pip install tensorflow-gpu==1.15.0
 ```
 GPU version is not mandatory, since in the current repo, gpu is not used by default.
 ## 2. gym >= 0.7.4
@@ -28,7 +29,7 @@ Note that currently, we **only** support **MJPro 1.31**.
 Please install mujoco 1.31 from the [official website](http://www.mujoco.org/), and use the mujoco-py version **0.5.7**.
 ## 4. Misc
 ```bash
-pip six beautifulsoup4 termcolor num2words
+pip six beautifulsoup4 termcolor num2words scipy bs4 lxml
 ```
 # Run the code
 We provide three examples below (The checkpoint files are already included in the repo):
@@ -53,7 +54,9 @@ python main.py --task CentipedeSix-v1 --use_gnn_as_policy 1 --num_threads 4 --gn
 ```
 The reward for **NerveNet** pretrained model is around: *2477*
 
-To train an agent from sratch using NerveNet, you could use the following code:
+To train an agent from scratch using NerveNet, you could use the following code:
 ```bash
 python main.py --task ReacherOne-v1 --use_gnn_as_policy 1 --network_shape 64,64 --lr 0.0003 --num_threads 4 --lr_schedule adaptive --max_timesteps 1000000 --use_gnn_as_value 0 --gnn_embedding_option noninput_shared --root_connection_option nN,Rn,uE --gnn_node_option nG,nB
 ```
+
+Note: see [this issue solution](https://github.com/WilsonWangTHU/NerveNet/issues/4#issuecomment-781961984)

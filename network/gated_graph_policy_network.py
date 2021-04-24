@@ -14,7 +14,7 @@ from graph_util import mujoco_parser
 from graph_util import gnn_util
 from util import nn_cells as nn
 from six.moves import xrange
-
+import pdb
 
 class GGNN(policy_network):
     '''
@@ -257,7 +257,7 @@ class GGNN(policy_network):
             if 'noninput' not in self._gnn_embedding_option:
                 self._MLP_embedding = {
                     node_type: nn.MLP(
-                        [self._input_feat_dim / 2,
+                        [self._input_feat_dim // 2,
                          self._node_info['para_size_dict'][node_type]],
                         init_method=self._init_method,
                         act_func=['tanh'] * 1,  # one layer at most
@@ -290,7 +290,7 @@ class GGNN(policy_network):
                 embedding_vec_size = int(embedding_vec_size)
                 self._embedding_variable = {}
                 out = self._npr.randn(
-                    embedding_vec_size, self._input_feat_dim / 2
+                    embedding_vec_size, self._input_feat_dim // 2
                 ).astype(np.float32)
                 out *= 1.0 / np.sqrt(np.square(out).sum(axis=0, keepdims=True))
                 self._embedding_variable[False] = tf.Variable(
@@ -313,7 +313,7 @@ class GGNN(policy_network):
             # tensor shape (None, para_size) --> (None, input_dim - ob_size)
             self._MLP_ob_mapping = {
                 node_type: nn.MLP(
-                    [self._input_feat_dim / 2,
+                    [self._input_feat_dim // 2,
                      self._node_info['ob_size_dict'][node_type]],
                     init_method=self._init_method,
                     act_func=['tanh'] * 1,  # one layer at most
@@ -415,6 +415,7 @@ class GGNN(policy_network):
 
     def _build_network_graph(self):
         # step 2: gather the input_feature from obs and node parameters
+        #pdb.set_trace()
         if 'noninput' not in self._gnn_embedding_option:
             self._input_embedding = {
                 node_type: self._MLP_embedding[node_type](
@@ -473,6 +474,7 @@ class GGNN(policy_network):
 
         for tt in xrange(self._num_prop_steps):
             ee = 0
+
             # TODO: change to enumerate
             for i_edge_type in self._node_info['edge_type_list']:
                 node_activate = \
@@ -489,15 +491,17 @@ class GGNN(policy_network):
             # aggregate messages
             concat_msg = tf.concat(self._prop_msg, 0)
             self.concat_msg = concat_msg
-            message = tf.unsorted_segment_sum(
+            message = tf.math.unsorted_segment_sum(
                 concat_msg, self._receive_idx,
                 self._node_info['num_nodes'] * self._batch_size_int
             )
-            denom_const = tf.unsorted_segment_sum(
+            #from util import fpdb; fpdb = fpdb.fpdb(); fpdb.set_trace()
+
+            denom_const = tf.math.unsorted_segment_sum(
                 tf.ones_like(concat_msg), self._receive_idx,
                 self._node_info['num_nodes'] * self._batch_size_int
             )
-            message = tf.div(message, (denom_const + tf.constant(1.0e-10)))
+            message = tf.math.divide(message, (denom_const + tf.constant(1.0e-10)))
 
             # update the hidden states via GRU
             new_state = []

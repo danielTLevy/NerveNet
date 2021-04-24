@@ -331,9 +331,9 @@ class optimization_agent(base_agent):
         for i_epochs in range(self.args.optim_epochs +
                               self.args.extra_vf_optim_epochs):
 
-            minibatch_id_candidate = range(
+            minibatch_id_candidate = list(range(
                 feed_dict[self.action_placeholder].shape[0]
-            )
+            ))
             self._npr.shuffle(minibatch_id_candidate)
             # make sure that only timesteps per batch is used
             minibatch_id_candidate = \
@@ -767,7 +767,7 @@ class optimization_agent(base_agent):
                 for node_type in self.node_info['node_type_dict']:
                     num_nodes = len(self.node_info['node_type_dict'][node_type])
                     graph_candidate_id = [
-                        range(i_id * num_nodes, (i_id + 1) * num_nodes)
+                        list(range(i_id * num_nodes, (i_id + 1) * num_nodes))
                         for i_id in candidate_id
                     ]
 

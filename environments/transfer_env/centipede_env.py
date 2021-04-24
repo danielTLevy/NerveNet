@@ -43,9 +43,9 @@ class CentipedeEnv(mujoco_env.MujocoEnv, utils.EzPickle):
         self._control_cost_coeff = .5 * 4 / CentipedeLegNum
         self._contact_cost_coeff = 0.5 * 1e-3 * 4 / CentipedeLegNum
 
-        self.torso_geom_id = 1 + np.array(range(self.num_body)) * 5
+        self.torso_geom_id = 1 + np.array(list(range(self.num_body))) * 5
         # make sure the centipede is not born to be end of episode
-        self.body_qpos_id = 6 + 6 + np.array(range(self.num_body)) * 6
+        self.body_qpos_id = 6 + 6 + np.array(list(range(self.num_body))) * 6
         self.body_qpos_id[-1] = 5
 
         mujoco_env.MujocoEnv.__init__(self, xml_path, 5)
@@ -115,7 +115,8 @@ class CentipedeEnv(mujoco_env.MujocoEnv, utils.EzPickle):
 
     def viewer_setup(self):
         self.viewer.cam.distance = self.model.stat.extent * 0.8
-        body_name = 'torso_' + str(int(np.ceil(self.num_body / 2 - 1)))
+        body_name_str = 'torso_' + str(int(np.ceil(self.num_body / 2 - 1)))
+        body_name = body_name_str.encode('utf-8')
         self.viewer.cam.trackbodyid = self.model.body_names.index(body_name)
 
     '''
