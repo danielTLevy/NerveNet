@@ -3,7 +3,7 @@ Basic cells of neural network
 
 Renjie Liao
 """
-import tensorflow as tf
+import tensorflow.compat.v1 as tf
 from six.moves import xrange
 
 
@@ -101,7 +101,7 @@ class GRU(object):
         self._init_method = init_method
 
         # initialize variables
-        with tf.compat.v1.variable_scope(scope):
+        with tf.variable_scope(scope):
             self._w_xi = weight_variable(
                 [input_dim, hidden_dim], init_method=self._init_method,
                 init_para={"mean": 0.0, "stddev": init_std},
@@ -204,9 +204,9 @@ class MLP(object):
         self._act_func = [None] * self._num_layer
 
         # initialize variables
-        with tf.compat.v1.variable_scope(scope):
+        with tf.variable_scope(scope):
             for ii in xrange(self._num_layer):
-                with tf.compat.v1.variable_scope("layer_{}".format(ii)):
+                with tf.variable_scope("layer_{}".format(ii)):
                     dim_in = dims[ii - 1]
                     dim_out = dims[ii]
 
@@ -236,9 +236,9 @@ class MLP(object):
     def __call__(self, x):
         h = [None] * self._num_layer
 
-        with tf.compat.v1.variable_scope(self._scope):
+        with tf.variable_scope(self._scope):
             for ii in xrange(self._num_layer):
-                with tf.compat.v1.variable_scope("layer_{}".format(ii)):
+                with tf.variable_scope("layer_{}".format(ii)):
                     if ii == 0:
                         input_vec = x
                     else:
@@ -282,7 +282,7 @@ class LSTM(object):
             self._init_method = "xavier"
 
         # initialize variables
-        with tf.compat.v1.variable_scope(scope):
+        with tf.variable_scope(scope):
             # forget gate
             self._Wf = weight_variable(
                 [input_dim, hidden_dim],
@@ -453,9 +453,9 @@ class ResMLP(MLP):
     def __call__(self, x):
         h = [None] * self._num_layer
 
-        with tf.compat.v1.variable_scope(self._scope):
+        with tf.variable_scope(self._scope):
             for ii in xrange(self._num_layer):
-                with tf.compat.v1.variable_scope("layer_{}".format(ii)):
+                with tf.variable_scope("layer_{}".format(ii)):
                     if ii == 0:
                         input_vec = x
                     else:

@@ -6,7 +6,7 @@
 #       NOTE: Now the input is in node order
 # ------------------------------------------------------------------------------
 import init_path as init_path
-import tensorflow as tf
+import tensorflow.compat.v1 as tf
 import numpy as np
 from network.policy_network import policy_network
 from util import logger
@@ -101,8 +101,8 @@ class GGNN(policy_network):
         '''
             @brief: everything about the network goes here
         '''
-        with tf.compat.v1.get_default_graph().as_default():
-            tf.compat.v1.set_random_seed(self._seed)
+        with tf.get_default_graph().as_default():
+            tf.set_random_seed(self._seed)
 
             # record the iteration count
             self._iteration = tf.Variable(0, trainable=False, name='step')
@@ -132,7 +132,7 @@ class GGNN(policy_network):
         )
 
     def _build_baseline_train_placeholders(self):
-        self._target_returns = tf.compat.v1.placeholder(tf.float32, shape=[None],
+        self._target_returns = tf.placeholder(tf.float32, shape=[None],
                                               name='target_returns')
 
     def get_vf_loss(self):
@@ -173,7 +173,7 @@ class GGNN(policy_network):
             # step 1: build the input_obs and input_parameters
             if self._input_obs is None:
                 self._input_obs = {
-                    node_type: tf.compat.v1.placeholder(
+                    node_type: tf.placeholder(
                         tf.float32,
                         [None, self._node_info['ob_size_dict'][node_type]],
                         name='input_ob_placeholder_ggnn'
@@ -186,7 +186,7 @@ class GGNN(policy_network):
             input_parameter_dtype = tf.int32 \
                 if 'noninput' in self._gnn_embedding_option else tf.float32
             self._input_parameters = {
-                node_type: tf.compat.v1.placeholder(
+                node_type: tf.placeholder(
                     input_parameter_dtype,
                     [None, self._node_info['para_size_dict'][node_type]],
                     name='input_para_placeholder_ggnn')
@@ -194,11 +194,11 @@ class GGNN(policy_network):
             }
 
             # step 2: the receive and send index
-            self._receive_idx = tf.compat.v1.placeholder(
+            self._receive_idx = tf.placeholder(
                 tf.int32, shape=(None), name='receive_idx'
             )
             self._send_idx = {
-                edge_type: tf.compat.v1.placeholder(
+                edge_type: tf.placeholder(
                     tf.int32, shape=(None),
                     name='send_idx_{}'.format(edge_type))
                 for edge_type in self._node_info['edge_type_list']
@@ -206,30 +206,30 @@ class GGNN(policy_network):
 
             # step 3: the node type index and inverse node type index
             self._node_type_idx = {
-                node_type: tf.compat.v1.placeholder(
+                node_type: tf.placeholder(
                     tf.int32, shape=(None),
                     name='node_type_idx_{}'.format(node_type))
                 for node_type in self._node_info['node_type_dict']
             }
-            self._inverse_node_type_idx = tf.compat.v1.placeholder(
+            self._inverse_node_type_idx = tf.placeholder(
                 tf.int32, shape=(None), name='inverse_node_type_idx'
             )
 
             # step 4: the output node index
             self._output_type_idx = {
-                output_type: tf.compat.v1.placeholder(
+                output_type: tf.placeholder(
                     tf.int32, shape=(None),
                     name='output_type_idx_{}'.format(output_type)
                 )
                 for output_type in self._node_info['output_type_dict']
             }
 
-            self._inverse_output_type_idx = tf.compat.v1.placeholder(
+            self._inverse_output_type_idx = tf.placeholder(
                 tf.int32, shape=(None), name='inverse_output_type_idx'
             )
 
             # step 5: batch_size
-            self._batch_size_int = tf.compat.v1.placeholder(
+            self._batch_size_int = tf.placeholder(
                 tf.int32, shape=(), name='batch_size_int'
             )
 
@@ -243,14 +243,14 @@ class GGNN(policy_network):
                 [self._hidden_dim]  # (l_1, l_2, ..., l_o, l_i)
             MLP_baseline_act_func = ['tanh'] * (len(MLP_baseline_shape) - 1)
             MLP_baseline_act_func[-1] = None
-            with tf.compat.v1.variable_scope('baseline'):
+            with tf.variable_scope('baseline'):
                 self._MLP_baseline_out = nn.MLP(
                     MLP_baseline_shape, init_method=self._init_method,
                     act_func=MLP_baseline_act_func, add_bias=True, scope='vpred'
                 )
 
         # step 1: build the weight parameters (mlp, gru)
-        with tf.compat.v1.variable_scope(self._name_scope):
+        with tf.variable_scope(self._name_scope):
             # step 1_1: build the embedding matrix (mlp)
             # tensor shape (None, para_size) --> (None, input_dim - ob_size)
             assert self._input_feat_dim % 2 == 0
@@ -324,7 +324,7 @@ class GGNN(policy_network):
                 if self._node_info['ob_size_dict'][node_type] > 0
             }
 
-        with tf.compat.v1.variable_scope(self._name_scope):
+        with tf.variable_scope(self._name_scope):
             # step 1_4: build the mlp for the propogation between nodes
             MLP_prop_shape = self._network_shape + \
                 [self._hidden_dim] + [self._hidden_dim]
@@ -403,7 +403,7 @@ class GGNN(policy_network):
                 )
 
             # step 1_8: build the log std for the actions
-            with tf.compat.v1.variable_scope(self._name_scope):
+            with tf.variable_scope(self._name_scope):
                 # size: [1, num_action]
                 self._action_dist_logstd = tf.Variable(
                     (0.0 * self._npr.randn(1, self._output_size)).astype(
@@ -475,7 +475,7 @@ class GGNN(policy_network):
         for tt in xrange(self._num_prop_steps):
             ee = 0
 
-            # TODO: change to enumerate
+            # TODO: change to enumerate (?)
             for i_edge_type in self._node_info['edge_type_list']:
                 node_activate = \
                     tf.gather(
@@ -667,8 +667,8 @@ class GGNN(policy_network):
 
     def _set_var_list(self):
         # collect the tf variable and the trainable tf variable
-        self._trainable_var_list = [var for var in tf.compat.v1.trainable_variables()
+        self._trainable_var_list = [var for var in tf.trainable_variables()
                                     if self._name_scope in var.name]
 
-        self._all_var_list = [var for var in tf.compat.v1.global_variables()
+        self._all_var_list = [var for var in tf.global_variables()
                               if self._name_scope in var.name]

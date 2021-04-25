@@ -7,7 +7,7 @@
 
 import util.init_path as init_path
 from util import logger
-import tensorflow as tf
+import tensorflow.compat.v1 as tf
 import os
 
 
@@ -38,7 +38,7 @@ class summary_handler(object):
             os.makedirs(self.path)
         self.path = os.path.join(self.path, summary_name)
 
-        self.train_writer = tf.compat.v1.summary.FileWriter(self.path, self.sess.graph)
+        self.train_writer = tf.summary.FileWriter(self.path, self.sess.graph)
 
         logger.info(
             'summary write initialized, writing to {}'.format(self.path))
@@ -67,7 +67,7 @@ class gym_summary_handler(summary_handler):
         if len(scalar_var_list) > 0:
             self.summary_list = []
             for name, var in scalar_var_list.items():
-                self.summary_list.append(tf.compat.v1.summary.scalar(name, var))
+                self.summary_list.append(tf.summary.scalar(name, var))
             self.summary = tf.summary.merge(self.summary_list)
 
     def manually_add_scalar_summary(self, summary_name, summary_value, x_axis):
@@ -81,7 +81,7 @@ class gym_summary_handler(summary_handler):
         if not self.enable:  # it happens when we are just debugging
             return
 
-        summary = tf.compat.v1.Summary(
-            value=[tf.compat.v1.Summary.Value(
+        summary = tf.Summary(
+            value=[tf.Summary.Value(
                 tag=summary_name, simple_value=summary_value), ])
         self.train_writer.add_summary(summary, x_axis)

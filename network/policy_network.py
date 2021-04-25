@@ -4,7 +4,7 @@
 #   TODO: 1. modify the mlp layer setting (list)
 # -----------------------------------------------------------------------------
 import init_path as init_path
-import tensorflow as tf
+import tensorflow.compat.v1 as tf
 import numpy as np
 from util.utils import fully_connected
 from util import model_saver
@@ -69,8 +69,8 @@ class policy_network(object):
         self.args = args
 
         if build_network_now:
-            with tf.compat.v1.get_default_graph().as_default():
-                tf.compat.v1.set_random_seed(args.seed)
+            with tf.get_default_graph().as_default():
+                tf.set_random_seed(args.seed)
                 self._build_model()
 
     def debug_get_std(self):
@@ -88,10 +88,10 @@ class policy_network(object):
 
         # if input not provided, make one
         if self._input is None:
-            self._input = tf.compat.v1.placeholder(tf.float32, [None, self._input_size],
+            self._input = tf.placeholder(tf.float32, [None, self._input_size],
                                          name='ob_input')
 
-        with tf.compat.v1.variable_scope(self._name_scope):
+        with tf.variable_scope(self._name_scope):
             self._layer = self._input
             self._layer_input_size = self._input_size
             for i_layer in range(len(self._network_shape)):
@@ -136,10 +136,10 @@ class policy_network(object):
 
     def _set_var_list(self):
         # collect the tf variable and the trainable tf variable
-        self._trainable_var_list = [var for var in tf.compat.v1.trainable_variables()
+        self._trainable_var_list = [var for var in tf.trainable_variables()
                                     if self._name_scope in var.name]
 
-        self._all_var_list = [var for var in tf.compat.v1.global_variables()
+        self._all_var_list = [var for var in tf.global_variables()
                               if self._name_scope in var.name]
 
     def get_action_dist_mu(self):

@@ -7,7 +7,7 @@
 
 
 import numpy as np
-import tensorflow as tf
+import tensorflow.compat.v1 as tf
 import agent.init_path as init_path
 from util import utils
 from network.baseline_network import tf_baseline_network
@@ -187,7 +187,7 @@ class optimization_agent(base_agent):
         self.update_parameters = self.update_ppo_parameters
 
         # init the network parameters (xavier initializer)
-        self.session.run(tf.compat.v1.global_variables_initializer())
+        self.session.run(tf.global_variables_initializer())
 
         # the set weight policy ops
         self.get_policy = utils.GetPolicyWeights(self.session,
@@ -276,19 +276,19 @@ class optimization_agent(base_agent):
 
         # step 4: weight decay
         self.weight_decay_loss = 0.0
-        for var in tf.compat.v1.trainable_variables():
+        for var in tf.trainable_variables():
             self.weight_decay_loss += tf.nn.l2_loss(var)
         if self.args.use_weight_decay:
             self.loss += self.weight_decay_loss * self.args.weight_decay_coeff
 
         # step 5: build the optimizer
-        self.lr_placeholder = tf.compat.v1.placeholder(tf.float32, [],
+        self.lr_placeholder = tf.placeholder(tf.float32, [],
                                              name='learning_rate')
         self.current_lr = self.args.lr
         if self.args.use_gnn_as_policy:
             # we need to clip the gradient for the ggnn
-            self.optimizer = tf.compat.v1.train.AdamOptimizer(self.lr_placeholder)
-            self.tvars = tf.compat.v1.trainable_variables()
+            self.optimizer = tf.train.AdamOptimizer(self.lr_placeholder)
+            self.tvars = tf.trainable_variables()
             self.grads = tf.gradients(self.loss, self.tvars)
             self.clipped_grads, _ = tf.clip_by_global_norm(
                 self.grads,
@@ -300,19 +300,19 @@ class optimization_agent(base_agent):
                 zip(self.clipped_grads, self.tvars)
             )
         else:
-            self.update_op = tf.compat.v1.train.AdamOptimizer(
+            self.update_op = tf.train.AdamOptimizer(
                 learning_rate=self.lr_placeholder, epsilon=1e-5
             ).minimize(self.loss)
 
-            self.tvars = tf.compat.v1.trainable_variables()
+            self.tvars = tf.trainable_variables()
             self.grads = tf.gradients(self.loss, self.tvars)
 
         if self.args.shared_network:
-            self.update_vf_op = tf.compat.v1.train.AdamOptimizer(
+            self.update_vf_op = tf.train.AdamOptimizer(
                 learning_rate=self.lr_placeholder, epsilon=1e-5
             ).minimize(self.vf_loss)
         else:
-            self.update_vf_op = tf.compat.v1.train.AdamOptimizer(
+            self.update_vf_op = tf.train.AdamOptimizer(
                 learning_rate=self.args.value_lr, epsilon=1e-5
             ).minimize(self.vf_loss)
 

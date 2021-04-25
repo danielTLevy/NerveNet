@@ -19,6 +19,7 @@ def map_output(transfer_env, i_value, added_constant, gnn_option_list):
         @brief:
             i_value could be the logstd (1, num_action), policy_output/w
             (64, num_action), policy_output/b (1, num_action)
+        TODO: Get this working with arrays
     '''
     assert len(gnn_option_list) == 4
     i_value = np.transpose(i_value)  # make the num_action to the front
@@ -79,6 +80,9 @@ def map_output(transfer_env, i_value, added_constant, gnn_option_list):
 
 
 def map_input(transfer_env, i_value, added_constant, gnn_option_list):
+    '''
+    TODO: Get this working with arrays
+    '''
     assert len(gnn_option_list) == 4
     ienv, oenv = [env + '-v1' for env in transfer_env.split('2')]
     ienv_info = mujoco_parser.parse_mujoco_graph(
@@ -118,7 +122,9 @@ def map_transfer_env_running_mean(ienv, oenv, running_mean_info,
                                   observation_size,
                                   gnn_node_option, root_connection_option,
                                   gnn_output_option, gnn_embedding_option):
-
+    '''
+    TODO: Get this working with arrays
+    '''
     # parse the mujoco information
     ienv_info = mujoco_parser.parse_mujoco_graph(
         ienv,

@@ -12,11 +12,13 @@ from util import logger
 import multiprocessing
 import time
 from environments import register
-import pdb
+import tensorflow as tf
 
 init_path.bypass_frost_warning()
 
 if __name__ == '__main__':
+    tf.compat.v1.disable_eager_execution()
+
     # get the configuration
     logger.info('New environments available : {}'.format(
         register.get_name_list()))

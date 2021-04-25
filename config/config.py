@@ -88,6 +88,7 @@ def get_config():
 
     # the settings for the ggnn
     parser = get_ggnn_config(parser)
+    parser = get_alt_config(parser)
     args = parser.parse_args()
     args = post_process(args)
 
@@ -198,6 +199,14 @@ def get_ggnn_config(parser):
                         ''')
     return parser
 
+def get_alt_config(parser):
+    '''
+    Configurations for alternative networks
+    '''
+    parser.add_argument("--use_alt_as_policy", type=int, default=0,
+                        help='0 for just the standard policy network, ' +
+                        '1 for using the alternative network')
+    return parser
 
 def post_process(args):
     if args.debug:

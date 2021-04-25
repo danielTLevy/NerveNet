@@ -3,7 +3,7 @@
 #       some helper functions about stats and layers
 # -----------------------------------------------------------------------------
 
-import tensorflow as tf
+import tensorflow.compat.v1 as tf
 import numpy as np
 import scipy.signal
 from six.moves import xrange
@@ -129,41 +129,12 @@ def linesearch(f, x, fullstep, expected_improve_rate):
   return x
 
 
-class SetFromFlat(object):
-
-  def __init__(self, session, var_list):
-    self.session = session
-    assigns = []
-    shapes = map(var_shape, var_list)
-    total_size = sum(np.prod(shape) for shape in shapes)
-    self.theta = theta = tf.compat.v1.placeholder(tf.float32, [total_size])
-    start = 0
-    assigns = []
-    for (shape, v) in zip(shapes, var_list):
-      size = np.prod(shape)
-      assigns.append(tf.compat.v1.assign(v, tf.reshape(theta[start:start + size], shape)))
-      start += size
-    self.op = tf.group(*assigns)
-
-  def __call__(self, theta):
-    self.session.run(self.op, feed_dict={self.theta: theta})
-
-
-class GetFlat(object):
-
-  def __init__(self, session, var_list):
-    self.session = session
-    self.op = tf.concat([tf.reshape(v, [numel(v)]) for v in var_list], 0)
-
-  def __call__(self):
-    return self.op.eval(session=self.session)
 
 
 class GetPolicyWeights(object):
   '''
         @brief:
             call this function to get the weights in the policy network
-        @TODO:
             This is dangerous ...
     '''
 
@@ -189,11 +160,11 @@ class SetPolicyWeights(object):
     self.placeholders = {}
     self.assigns = []
 
-    with tf.compat.v1.get_default_graph().as_default():
+    with tf.get_default_graph().as_default():
       for var in self.policy_vars:
         self.placeholders[var.name] = \
-            tf.compat.v1.placeholder(tf.float32, var.get_shape())
-        self.assigns.append(tf.compat.v1.assign(var, self.placeholders[var.name]))
+            tf.placeholder(tf.float32, var.get_shape())
+        self.assigns.append(tf.assign(var, self.placeholders[var.name]))
 
   def __call__(self, weights):
     feed_dict = {}
@@ -214,11 +185,11 @@ def xavier_initializer(self, shape):
 
 def fully_connected(input_layer, input_size, output_size, weight_init,
                     bias_init, scope, trainable):
-  with tf.compat.v1.variable_scope(scope):
-    w = tf.compat.v1.get_variable(
+  with tf.variable_scope(scope):
+    w = tf.get_variable(
         "w", [input_size, output_size],
         initializer=weight_init,
         trainable=trainable)
-    b = tf.compat.v1.get_variable(
+    b = tf.get_variable(
         "b", [output_size], initializer=bias_init, trainable=trainable)
   return tf.matmul(input_layer, w) + b
